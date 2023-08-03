@@ -2,8 +2,11 @@
 import React, { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import useSWR from 'swr';
-import { useAtom } from 'jotai'; // Import the useAtom hook from Jotai
-import { favouritesAtom } from '../store'; // Import the favouritesAtom from the store.js file
+// import { Error } from '../components/Error'; // Import the Error component
+import { useAtom } from 'jotai';
+import { favouritesAtom } from '../store';
+import { addToFavourites, removeFromFavourites } from '../lib/userData'; // Import functions to handle favorites
+
 
 const useFavouritesAtom = () => {
   return useAtom(favouritesAtom);
@@ -30,7 +33,7 @@ const ArtworkCardDetail = ({ objectID }) => {
   );
 
   if (error) {
-    return <Error statusCode={404} />;
+    return null;
   }
 
   if (!data) {
@@ -45,13 +48,17 @@ const ArtworkCardDetail = ({ objectID }) => {
   const [showAdded, setShowAdded] = useState(favouritesList.includes(objectID));
 
   // Function to handle the favourites button click
-  const favouritesClicked = () => {
+  const favouritesClicked = async () => {
     if (showAdded) {
       // Remove the objectID from the "favouritesList"
       setFavouritesList((current) => current.filter((fav) => fav !== objectID));
+      // Remove the objectID from the user's favorites on the server
+      await removeFromFavourites(objectID);
     } else {
       // Add the objectID to the "favouritesList"
       setFavouritesList((current) => [...current, objectID]);
+      // Add the objectID to the user's favorites on the server
+      await addToFavourites(objectID);
     }
     // Toggle the "showAdded" state
     setShowAdded(!showAdded);
@@ -62,7 +69,7 @@ const ArtworkCardDetail = ({ objectID }) => {
       {primaryImage && <Card.Img variant="top" src={cardImgSrc} />}
       <Card.Body>
         <Card.Title>{title || 'N/A'}</Card.Title>
-        <Card.Text>
+        <div>
           Object Date: {objectDate || 'N/A'}
           <br />
           Classification: {classification || 'N/A'}
@@ -80,7 +87,7 @@ const ArtworkCardDetail = ({ objectID }) => {
           Credit Line: {creditLine || 'N/A'}
           <br />
           Dimensions: {dimensions || 'N/A'}
-        </Card.Text>
+        </div>
 
         {/* Favourites Button */}
         <Button variant={showAdded ? 'primary' : 'outline-primary'} onClick={favouritesClicked}>

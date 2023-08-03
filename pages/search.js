@@ -5,6 +5,8 @@ import { useRouter } from 'next/router';
 import { useAtom } from 'jotai'; // Import the useAtom hook
 
 import { searchHistoryAtom } from '../store'; // Import the searchHistoryAtom
+import { addToHistory } from '../lib/userData';
+
 
 export default function AdvancedSearch() {
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
@@ -23,7 +25,7 @@ export default function AdvancedSearch() {
   const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom);
 
   // Function takes the form data (ie: the data parameter) and generates a queryString
-  const submitForm = (data) => {
+  const submitForm = async(data) => {
     let queryString = "";
     queryString += `searchBy=${encodeURIComponent(data.searchBy)}`;
     queryString += data.geoLocation ? `&geoLocation=${encodeURIComponent(data.geoLocation)}` : "";
@@ -36,8 +38,12 @@ export default function AdvancedSearch() {
     router.push(`/artwork?${queryString}`);
     reset();
 
-    // Add the computed queryString to the searchHistory
-    setSearchHistory(current => [...current, queryString]);
+    try {
+        // Add the computed queryString to the searchHistory in the database
+        setSearchHistory(await addToHistory(queryString));
+      } catch (error) {
+        console.error('Error adding to history:', error);
+      }
   };
 
 

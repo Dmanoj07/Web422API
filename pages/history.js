@@ -4,6 +4,8 @@ import { useAtom } from 'jotai'; // Import the useAtom hook
 import { Card, ListGroup, Button } from 'react-bootstrap';
 import { searchHistoryAtom } from '../store'; // Import the searchHistoryAtom
 import styles from '@/styles/History.module.css'; // Import the CSS Module
+import { removeFromHistory } from '../lib/userData';
+
 
 export default function History() {
   const router = useRouter();
@@ -18,14 +20,15 @@ export default function History() {
   };
 
   // Function to handle when the remove button of a search history item is clicked
-  const removeHistoryClicked = (e, index) => {
+  const removeHistoryClicked = async (e, index) => {
     e.stopPropagation(); // stop the event from triggering other events
-    setSearchHistory(current => {
-      let x = [...current];
-      x.splice(index, 1);
-      return x;
-    });
+    try {
+      setSearchHistory(await removeFromHistory(searchHistory[index]));
+    } catch (error) {
+      console.error('Error removing from history:', error);
+    }
   };
+
 
   // Create a list of parsed search queries from the searchHistory
   let parsedHistory = [];

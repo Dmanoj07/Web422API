@@ -1,12 +1,15 @@
 import React from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import ArtworkCard from '@/components/ArtworkCard';
-import { useAtom } from 'jotai'; // Import the useAtom hook from Jotai
-import { favouritesAtom } from '../store'; // Import the favouritesAtom from the store.js file
+import { useAtom } from 'jotai';
+import { favouritesAtom } from '../store';
 
 const Favourites = () => {
   // Get the favouritesList from the favouritesAtom
   const [favouritesList] = useAtom(favouritesAtom);
+
+  // If favouritesList is not available yet (still loading from the server), return null
+  if (!favouritesList) return null;
 
   return (
     <>

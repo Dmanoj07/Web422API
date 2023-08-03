@@ -46,7 +46,7 @@ const ArtworkCard = ({ objectID }) => {
           Medium: {medium || 'N/A'}
         </Card.Text>
         <Link href={`/artwork/${objectID}`} passHref>
-          <Button variant="primary">View Details (ID: {objectID})</Button>
+          View Details (ID: {objectID})
         </Link>
       </Card.Body>
     </Card>
